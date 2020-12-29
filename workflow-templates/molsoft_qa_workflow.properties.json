@@ -7,6 +7,6 @@
     ],
     "filePatterns": [
         "src"
-        "src/layout/theme.liquid"
+        "src\\layout\\theme.liquid"
     ]
 }
