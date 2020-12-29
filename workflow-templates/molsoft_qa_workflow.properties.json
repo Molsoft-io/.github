@@ -1,0 +1,12 @@
+{
+    "name": "Deploy QA Theme",
+    "description": "Deploy a Shopify theme with the molsoft workflow to the QA theme.",
+    "iconName": "Shopify_logo",
+    "categories": [
+        "Liquid"
+    ],
+    "filePatterns": [
+        "src"
+        "src/layout/theme.liquid"
+    ]
+}
