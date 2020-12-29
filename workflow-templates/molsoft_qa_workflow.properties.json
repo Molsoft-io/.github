@@ -4,9 +4,5 @@
     "iconName": "Shopify_logo",
     "categories": [
         "Liquid"
-    ],
-    "filePatterns": [
-        "src"
-        "src\\layout\\theme.liquid"
     ]
 }
