@@ -1,8 +1,7 @@
-name: Molsoft themes QA step
+name: Molsoft manual QA step
 
 on:
-  pull_request_review:
-    types: [submitted]
+  workflow_dispatch:
 
 jobs:
   context:
@@ -15,7 +14,6 @@ jobs:
           echo "$GITHUB_CONTEXT"
    
   build:
-    if: (github.event.pull_request.base.ref == 'development' || github.event.pull_request.base.ref == 'Development') && github.event.review.state == 'approved'
     runs-on: ubuntu-18.04
     
     steps:
@@ -24,12 +22,6 @@ jobs:
           persist-credentials: false
           
       - uses: actions/setup-node@v2
-        
-      - name: automerge
-        uses: "pascalgn/automerge-action@v0.13.0"
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          MERGE_LABELS:  
 
       - name: Install ThemeKit
         run: curl -s https://raw.githubusercontent.com/Shopify/themekit/master/scripts/install.py | sudo python
@@ -43,10 +35,6 @@ jobs:
         
       - name: install dependencies
         run: sudo npm i
-
-      - uses: reitermarkus/automerge@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy theme to QA
         if: ${{ success() }}
