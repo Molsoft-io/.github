@@ -8,8 +8,9 @@ workflows.forEach(workflow => {
 });
 
 (async () => {
+  const personal_access_token = process.argv.slice(2)[0];
   const octokit = new Octokit({
-    auth: '93b70f1297657070a966306e4c41953a9b1a578f',
+    auth: personal_access_token,
   });
 
   const org = 'Molsoft-io';

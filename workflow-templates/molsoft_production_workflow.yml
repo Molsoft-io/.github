@@ -41,7 +41,6 @@ jobs:
       - name: "Download dos2unix for help with line endings"
         run: |
           sudo apt-get install dos2unix
-
       - name: yamler
         uses: juliojimenez/yamler@v0
         id: yamler
@@ -67,6 +66,7 @@ jobs:
         with:
           persist-credentials: true
           ref: main
+          token: ${{ secrets.PAT }}
         
       # we download the live theme into a temp folder to create a backup
       # and do molsoft-tools download to sync the repo with the live theme 
@@ -76,7 +76,6 @@ jobs:
           mkdir temp
           molsoft-tools download --env=production
           theme download --env=production --dir="temp" --password=${{ steps.yamler.outputs.production__password }} --store=${{ steps.yamler.outputs.production__store }} --themeid=${{ steps.yamler.outputs.production__theme_id }}
-
       - name: Convert to LF line endings
         run: find . -type f -print0 | xargs -0 dos2unix
         
@@ -104,6 +103,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: Development
+          token: ${{ secrets.PAT }}
           
       - name: Download QA theme
         if: github.event.inputs.skipSync != 'true'
