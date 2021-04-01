@@ -24,6 +24,7 @@ workflows.forEach(workflow => {
         owner: org,
         repo: repo.name,
         path: '/.github/workflows',
+        ref: "Development"
       });
 
 
@@ -39,7 +40,7 @@ workflows.forEach(workflow => {
 
         const matchingWorkflow = projectWorkflows.find(projectWorkflow => projectWorkflow.name === workflow);
         const workflowUpdate = containsMaster ? workflowsContent[i].replace(/main/g, 'master') : workflowsContent[i];
-
+        
         try {
           await octokit.repos.createOrUpdateFileContents({
             owner: org,
@@ -60,35 +61,24 @@ workflows.forEach(workflow => {
           });
         }
         catch (e) {
+          console.log("fail workflow: ", workflow, repo.name, e.status);
+          console.log(workflow, matchingWorkflow);
           console.log(e);
         }
       }
-      // workflows.forEach(async (workflow, index) => {
 
-      // })
-
-
-      // octokit.repos.createOrUpdateFileContents({
+      // await octokit.issues.createLabel({
       //   owner: org,
-      //   repo: repos.data[0].name,
-      //   path: '/.github/workflows',
-      //   message: "UPDATED WORKFLOW",
-      //   branch: "Development",
-      //   content: ,
-      //   committer:{
-      //     name: "Workflow updated",
-      //     email: "hello@molsoft.io"
-      //   },
-      //   author: {
-      //     name: "Workflow updated",
-      //     email: "hello@molsoft.io"
-      //   }
-      // })
+      //   repo: repo.name,
+      //   name: "QA",
+      //   color: "fbc02d",
+      //   description: "Task is in QA (adding this label will trigger a preview build)"
+      // });
 
 
     }
     catch (e) {
-      console.log(e)
+      console.log("fail: ", repo.name, e.status)
     }
   }
 

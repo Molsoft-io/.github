@@ -1,19 +1,13 @@
-name: Molsoft manual QA step
+name: Build feature preview
 
 on:
+  pull_request:
+    types: [ labeled ]
   workflow_dispatch:
 
-jobs:
-  context:
-    runs-on: ubuntu-18.04
-    steps:
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: |
-          echo "$GITHUB_CONTEXT"
-   
+jobs:   
   build:
+    if: ${{ github.event.action == 'submitted' || github.event.action == 'labeled' && github.event.label.name == 'QA' }}
     runs-on: ubuntu-18.04
     
     steps:
@@ -22,6 +16,12 @@ jobs:
           persist-credentials: false
           
       - uses: actions/setup-node@v2
+
+      - name: yamler
+        uses: juliojimenez/yamler@v0
+        id: yamler
+        with:
+          yaml-file: "config.yml"
 
       - name: Install ThemeKit
         run: curl -s https://raw.githubusercontent.com/Shopify/themekit/master/scripts/install.py | sudo python
@@ -40,20 +40,26 @@ jobs:
         if: ${{ success() }}
         run: molsoft-tools deploy --env=qa
 
-      - name: yamler
-        uses: juliojimenez/yamler@v0
-        id: yamler
-        with:
-          yaml-file: "config.yml"
-
       - run: echo "${{ toJson(steps.yamler) }}"
       - name: Slack Notification Success
-        if: ${{ success() }}
+        if: ${{ success() && github.event.action == 'labeled' }}
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_CHANNEL: qa
           SLACK_ICON: https://avatars3.githubusercontent.com/u/75539895
-          SLACK_MESSAGE: 'QA Theme is ready for preview at https://${{ steps.yamler.outputs.qa__store }}?preview_theme_id=${{ steps.yamler.outputs.qa__theme_id }} :rocket:'
+          SLACK_MESSAGE: ":mag: Feature is ready for preview at https://${{ steps.yamler.outputs.qa__store }}?preview_theme_id=${{ steps.yamler.outputs.qa__theme_id }} \n\n *${{ github.event.pull_request.title }}* \n ${{ github.event.pull_request.body }}"
+          SLACK_TITLE: Message
+          SLACK_USERNAME: Molsoft Automation
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+      - run: echo "${{ toJson(steps.yamler) }}"
+      - name: Slack Notification Success
+        if: ${{ success() && github.event.action != 'labeled' }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: qa
+          SLACK_ICON: https://avatars3.githubusercontent.com/u/75539895
+          SLACK_MESSAGE: ':mag: Feature is ready for preview at https://${{ steps.yamler.outputs.qa__store }}?preview_theme_id=${{ steps.yamler.outputs.qa__theme_id }}'
           SLACK_TITLE: Message
           SLACK_USERNAME: Molsoft Automation
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
@@ -65,7 +71,7 @@ jobs:
           SLACK_CHANNEL: qa
           SLACK_COLOR: "danger"
           SLACK_ICON: https://avatars3.githubusercontent.com/u/75539895
-          SLACK_MESSAGE: 'Oh no, something happened! :disappointed: Take a look at the action to see the issue.'
+          SLACK_MESSAGE: 'Oh no, the feature preview build for ${{ steps.yamler.outputs.qa__store }} failed! :disappointed: Take a look at the action to see the issue.'
           SLACK_TITLE: Message
           SLACK_USERNAME: Molsoft Automation
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
